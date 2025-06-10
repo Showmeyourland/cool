@@ -28,13 +28,15 @@ class ImageGenTool(BaseTool):
     def _execute(self, prompt: str, image_name: list, size: int = 512, num: int = 2):
         if size not in [256, 512, 1024]:
             size = min([256, 512, 1024], key=lambda x: abs(x - size))
-        # openai.api_key = get_config('OPENAI_API_KEY')
-        # response = openai.Image.create(
-        #     prompt = prompt,
-        #     n = num,
-        #     size = f"{size}x{size}"
-        # )
-        response = self.llm.generate_image(prompt, size, num)
+        if self.llm is not None:
+            response = self.llm.generate_image(prompt, size, num)
+        else:
+            openai.api_key = get_config('OPENAI_API_KEY')
+            response = openai.Image.create(
+                prompt=prompt,
+                n=num,
+                size=f"{size}x{size}"
+            )
 
         response = response.__dict__
         response = response['_previous']['data']
